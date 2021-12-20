@@ -1,0 +1,107 @@
+{extend name="layout/index"}
+
+{block name='header'}{/block}
+{block name='menu'}{/block}
+
+{block name='content'}
+<article class="cl pd-20">
+	<form action="" method="post" class="form form-horizontal" id="form">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>角色名称：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" name="role_name" value="{$info.role_name}" placeholder="" >
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">角色说明：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" id="role_info" name="role_info" value="{$info.role_info}" placeholder="" >
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">角色权限：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				{foreach $auths as $key=>$vo } 
+				<dl class="permission-list">
+					<dt>
+						<label>
+							<input type="checkbox" value="{$vo.id}" name="ids[]"  id="ids-{$vo.id}" {:in_array($vo.id,$info.auth_ids)?'checked':''} >
+							{$vo.auth_name}</label>
+					</dt>
+					<dd>
+						{foreach $vo.child as $key1=>$vo1 } 
+						<dl class="cl permission-list2">
+							<dt>
+								<label class="">
+									<input type="checkbox" value="{$vo1.id}" name="ids[]" id="ids-{$vo1.id}" {:in_array($vo1.id,$info.auth_ids)?'checked':''} >
+									{$vo1.auth_name}</label>
+							</dt>
+							<dd>
+								{foreach $vo1.child as $key2=>$vo2 } 
+									<label class="">
+									<input type="checkbox" value="{$vo2.id}" name="ids[]" id="ids-{$vo2.id}" {:in_array($vo2.id,$info.auth_ids)?'checked':''} >
+									{$vo2.auth_name}</label>
+								{/foreach}
+								
+							</dd>
+						</dl>
+						{/foreach}
+					</dd>
+				</dl>
+				{/foreach}
+			
+			</div>
+		</div>
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+				<button type="button" class="btn btn-success radius" id="sub" name="admin-role-save"><i class="icon-ok"></i> 确定</button>
+			</div>
+		</div>
+	</form>
+</article>
+{/block}
+{block name='myjs'}
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript">
+$(function(){
+	$(".permission-list dt input:checkbox").click(function(){
+		$(this).closest("dl").find("dd input:checkbox").prop("checked",$(this).prop("checked"));
+	});
+	$(".permission-list2 dd input:checkbox").click(function(){
+		var l =$(this).parent().parent().find("input:checked").length;
+		var l2=$(this).parents(".permission-list").find(".permission-list2 dd").find("input:checked").length;
+		if($(this).prop("checked")){
+			$(this).closest("dl").find("dt input:checkbox").prop("checked",true);
+			$(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked",true);
+		}
+		else{
+			if(l==0){
+				$(this).closest("dl").find("dt input:checkbox").prop("checked",false);
+			}
+			if(l2==0){
+				$(this).parents(".permission-list").find("dt").first().find("input:checkbox").prop("checked",false);
+			}
+		}
+	});
+
+	$("#sub").click(function(){
+
+		var data = $("#form").serialize();
+		$.post("/admin/role/edit/"+{$info.id},data,function(res){
+
+			if (res.code==200) {
+				window.parent.location.href = "/admin/role/index";
+			}else{
+				//失败更新验证码
+				layer.msg(res.msg);
+			}
+
+		});
+
+	});
+	
+	
+});
+</script>
+<!--/请在上方写此页面业务相关的脚本-->
+{/block}

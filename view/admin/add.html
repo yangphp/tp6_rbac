@@ -1,0 +1,133 @@
+{extend name="layout/index"}
+
+{block name='header'}{/block}
+{block name='menu'}{/block}
+
+{block name='content'}
+<article class="cl pd-20">
+	<form action="" method="post" class="form form-horizontal" id="form-admin-add">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>管理账号：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" name="user_name">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>管理员密码：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" autocomplete="off" value="" placeholder="密码" id="password" name="user_pass">
+			</div>
+		</div>
+
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>手机：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="phone" name="user_mobile">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>邮箱：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" placeholder="@" name="user_email" id="user_email">
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>账号状态：</label>
+			<div class="formControls col-xs-8 col-sm-9 skin-minimal">
+				<div class="radio-box">
+					<input name="user_status" value="1" type="radio" id="user_status-1" >
+					<label for="user_status-1">已启用</label>
+				</div>
+				<div class="radio-box">
+					<input name="user_status" value="0" type="radio" id="user_status-2" checked>
+					<label for="user_status-2">已停用</label>
+				</div>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">角色：</label>
+			<div class="formControls col-xs-8 col-sm-9"> <span class="select-box" style="width:150px;">
+				<select class="select" name="role_id" size="1">
+					{foreach $roles as $key=>$val}
+					<option value="{$val.id}">{$val.role_name}</option>
+					{/foreach}
+					
+				</select>
+				</span> </div>
+		</div>
+
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+				<input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+			</div>
+		</div>
+	</form>
+</article>
+{/block}
+
+{block name="myjs"}
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
+<script type="text/javascript" src="/admin/lib/jquery.validation/1.14.0/validate-methods.js"></script> 
+<script type="text/javascript" src="/admin/lib/jquery.validation/1.14.0/messages_zh.js"></script> 
+<script type="text/javascript">
+$(function(){
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	$("#form-admin-add").validate({
+		rules:{
+			user_name:{
+				required:true,
+				minlength:5,
+				maxlength:20
+			},
+			user_pass:{
+				required:true,
+			},
+			
+			is_admin:{
+				required:true,
+			},
+			user_status:{
+				required:true,
+			},
+			user_mobile:{
+				required:true,
+				isPhone:true,
+			},
+			user_email:{
+				required:true,
+				email:true,
+			},
+			role_id:{
+				required:true,
+			},
+		},
+		onkeyup:false,
+		focusCleanup:true,
+		success:"valid",
+		submitHandler:function(form){
+			
+			var data = $("#form-admin-add").serialize();
+			$.post("/admin/add",data,function(res){
+
+				if (res.code==200) {
+					window.parent.location.href = "/admin/list";
+				}else{
+					//失败更新验证码
+					layer.msg(res.msg);
+				}
+
+			});
+
+		}
+	});
+});
+</script>
+{/block}
